@@ -4,12 +4,11 @@ import {
   DollarSign,
   ListOrdered,
   Clock,
- CheckCircle,
+  CheckCircle,
   Loader2
 } from 'lucide-react';
 
 export default function Dashboard({ onNavigate }) {
-
   const [orders, setOrders] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,247 +19,143 @@ export default function Dashboard({ onNavigate }) {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        const [ordersRes, productsRes] = await Promise.all([
-          axios.get(`${API_URL}/admin/orders`, {
-            timeout: 10000
-          }),
 
-          axios.get(`${API_URL}/products`, {
-            timeout: 10000
-          })
+        const [ordersRes, productsRes] = await Promise.all([
+          axios.get(`${API_URL}/admin/orders`, { timeout: 10000 }),
+          axios.get(`${API_URL}/products`, { timeout: 10000 })
         ]);
 
-        console.log('Orders API Response:', ordersRes.data);
-        console.log('Products API Response:', productsRes.data);
-
-        setOrders(
-          Array.isArray(ordersRes.data)
-            ? ordersRes.data
-            : []
-        );
-
-        setProducts(
-          Array.isArray(productsRes.data)
-            ? productsRes.data
-            : []
-        );
+        setOrders(Array.isArray(ordersRes.data) ? ordersRes.data : []);
+        setProducts(Array.isArray(productsRes.data) ? productsRes.data : []);
 
       } catch (err) {
-
         console.error('Dashboard API Error:', err);
-        if (err.response) {
-
-          console.log('Backend Response Error:');
-          console.log(err.response.status);
-          console.log(err.response.data);
-
-        } else if (err.request) {
-
-          console.log('No response received from backend server.');
-
-        } else {
-
-          console.log('Axios Error:', err.message);
-
-        }
         setOrders([]);
         setProducts([]);
-
       } finally {
-
         setLoading(false);
-
       }
-
     };
 
     fetchDashboardData();
-
   }, []);
 
-  const safeOrders = Array.isArray(orders)
-    ? orders
-    : [];
+  const safeOrders = Array.isArray(orders) ? orders : [];
+  const safeProducts = Array.isArray(products) ? products : [];
 
-  const safeProducts = Array.isArray(products)
-    ? products
-    : [];
-
-{  /*DashBoard Stats*/}
   const totalOrders = safeOrders.length;
 
   const pendingOrders = safeOrders.filter(
-    order =>
-      !order?.status ||
-      order.status === 'Pending Review'
+    (o) => !o?.status || o.status === 'Pending Review'
   ).length;
 
   const approvedOrders = safeOrders.filter(
-    order =>
-      order?.status === 'Approved'
+    (o) => o?.status === 'Approved'
   ).length;
 
   const totalRevenue = safeOrders.reduce((acc, order) => {
+    if (!order || order.status === 'Cancelled') return acc;
 
-    if (!order) return acc;
-
-    if (order.status === 'Cancelled') {
-      return acc;
-    }
-
-    const rosterQty = order.roster?.reduce(
-      (sum, item) =>
-        sum + (Number(item?.quantity) || 0),
-      0
-    ) || 0;
+    const rosterQty =
+      order.roster?.reduce((s, i) => s + (Number(i?.quantity) || 0), 0) || 0;
 
     const basePrice =
-      order.designDetails?.productType === 'cap'
-        ? 24.99
-        : 59.99;
+      order.designDetails?.productType === 'cap' ? 24.99 : 59.99;
 
-    const logoFee =
-      order.designDetails?.logoUrl
-        ? 10
-        : 0;
+    const logoFee = order.designDetails?.logoUrl ? 10 : 0;
+    const textFee = order.designDetails?.customText ? 5 : 0;
 
-    const customTextFee =
-      order.designDetails?.customText
-        ? 5
-        : 0;
+    const unitPrice = basePrice + logoFee + textFee;
 
-    const unitPrice =
-      basePrice +
-      logoFee +
-      customTextFee;
-
-    const orderTotal =
-      (unitPrice * rosterQty) +
-      (rosterQty > 0 ? 15 : 0);
+    const orderTotal = unitPrice * rosterQty + (rosterQty > 0 ? 15 : 0);
 
     return acc + orderTotal;
-
   }, 0);
 
-{/*Stats Config*/}
   const stats = [
     {
-      label: 'ESTIMATED REVENUE',
+      label: 'REVENUE',
       value: `$${totalRevenue.toFixed(2)}`,
       icon: DollarSign,
-      color:
-        'text-brand-accent bg-brand-accent/15 border-brand-accent/30',
-      description: 'Revenue generated from orders'
+      color: 'text-brand-accent bg-brand-accent/15 border-brand-accent/30'
     },
     {
-      label: 'TOTAL QUOTE REQUESTS',
+      label: 'ORDERS',
       value: totalOrders,
       icon: ListOrdered,
-      color:
-        'text-brand-primary bg-brand-primary/15 border-brand-primary/30',
-      description: 'Total submitted orders'
+      color: 'text-brand-primary bg-brand-primary/15 border-brand-primary/30'
     },
     {
-      label: 'PENDING REVIEWS',
+      label: 'PENDING',
       value: pendingOrders,
       icon: Clock,
-      color:
-        'text-amber-400 bg-amber-400/15 border-amber-400/30',
-      description: 'Orders waiting approval'
+      color: 'text-amber-400 bg-amber-400/15 border-amber-400/30'
     },
     {
-      label: 'APPROVED ORDERS',
+      label: 'APPROVED',
       value: approvedOrders,
       icon: CheckCircle,
-      color:
-        'text-emerald-400 bg-emerald-400/15 border-emerald-400/30',
-      description: 'Production ready orders'
+      color: 'text-emerald-400 bg-emerald-400/15 border-emerald-400/30'
     }
   ];
 
   if (loading) {
-
     return (
-      <div className="flex items-center justify-center h-[500px]">
+      <div className="flex items-center justify-center h-[60vh]">
         <Loader2 className="w-8 h-8 animate-spin text-brand-primary" />
       </div>
     );
   }
+
   return (
+    <div className="space-y-6 px-2 sm:px-0">
 
-    <div className="space-y-8 animate-fade-in select-none">
-
-{/*Header*/}
-
+      {/* HEADER */}
       <div>
-
-        <h2 className="text-xl font-bold tracking-wider text-white uppercase">
-          WORKSPACE METRICS
+        <h2 className="text-base sm:text-xl font-bold uppercase text-white">
+          Workspace Metrics
         </h2>
-
-        <p className="text-xs text-brand-text/70 mt-1">
+        <p className="text-xs text-brand-text/60">
           Live database statistics
         </p>
-
       </div>
 
-{/*Stats*/}
+      {/* STATS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-
-        {stats.map((stat, idx) => {
-
+        {stats.map((stat, i) => {
           const Icon = stat.icon;
 
           return (
-
-            <div
-              key={idx}
-              className="glass-panel p-6 rounded-2xl flex flex-col justify-between"
-            >
-
+            <div key={i} className="glass-panel p-4 sm:p-6 rounded-2xl">
               <div className="flex justify-between items-start">
-
                 <div>
-
-                  <div className="text-[10px] uppercase text-brand-text/50">
+                  <div className="text-[10px] text-brand-text/50 uppercase">
                     {stat.label}
                   </div>
-
-                  <div className="text-2xl font-bold text-white mt-1">
+                  <div className="text-lg sm:text-2xl font-bold text-white">
                     {stat.value}
                   </div>
-
                 </div>
 
                 <div className={`p-2 rounded-xl border ${stat.color}`}>
-                  <Icon className="w-5 h-5" />
+                  <Icon className="w-4 sm:w-5 h-4 sm:h-5" />
                 </div>
-
               </div>
-
-              <div className="text-[10px] text-brand-text/50 mt-4">
-                {stat.description}
-              </div>
-
             </div>
-
           );
-
         })}
 
       </div>
 
-{/*Main Grid*/}
+      {/* MAIN GRID */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* ORDERS */}
+        <div className="lg:col-span-2 glass-panel p-4 sm:p-6 rounded-2xl max-h-[55vh] flex flex-col">
 
-        {/* RECENT ORDERS */}
-        <div className="lg:col-span-2 glass-panel p-6 rounded-2xl h-[400px] overflow-hidden">
-
-          <div className="flex justify-between items-center mb-4 border-b border-brand-border/30 pb-3">
-
-            <h4 className="text-xs font-bold text-white uppercase">
+          <div className="flex justify-between items-center border-b border-brand-border/30 pb-2">
+            <h4 className="text-xs font-bold uppercase text-white">
               Recent Orders
             </h4>
 
@@ -270,94 +165,46 @@ export default function Dashboard({ onNavigate }) {
             >
               View All
             </button>
-
           </div>
 
-          <div className="overflow-y-auto h-[320px] space-y-3 pr-2">
+          <div className="flex-1 overflow-y-auto mt-3 space-y-3">
 
             {safeOrders.length === 0 ? (
-
               <div className="text-xs text-brand-text/50">
-                No orders found in database.
+                No orders found
               </div>
-
             ) : (
-
               safeOrders.slice(0, 5).map((order) => (
-
                 <div
                   key={order._id}
-                  className="flex justify-between items-start p-3 rounded-xl bg-brand-dark/20 border border-brand-border/30"
+                  className="p-3 rounded-xl bg-brand-dark/20 border border-brand-border/30 flex flex-col sm:flex-row sm:justify-between gap-2"
                 >
-
                   <div>
-
                     <div className="text-xs font-bold text-white uppercase">
-                      {order.contactDetails?.teamName || 'Unknown Team'}
+                      {order.contactDetails?.teamName || 'Unknown'}
                     </div>
-
-                    <div className="text-[10px] text-brand-text/50 mt-1">
-                      {order.contactDetails?.name || 'Unknown User'}
+                    <div className="text-[10px] text-brand-text/50">
+                      {order.contactDetails?.name}
                     </div>
-
                   </div>
 
-                  <div className="text-right">
-
+                  <div className="text-left sm:text-right">
                     <div className="text-xs text-white">
-
-                      {
-                        order.roster?.reduce(
-                          (sum, item) =>
-                            sum + (Number(item?.quantity) || 0),
-                          0
-                        ) || 0
-                      } items
-
+                      {order.roster?.reduce((s, i) => s + (Number(i?.quantity) || 0), 0)} items
                     </div>
-
-                    <div className="text-[10px] text-brand-text/50 mt-1">
-
-                      {
-                        order.createdAt
-                          ? new Date(order.createdAt).toLocaleDateString()
-                          : 'N/A'
-                      }
-
-                    </div>
-
-                    <div
-                      className={`text-[9px] uppercase mt-1 ${
-                        order.status === 'Approved'
-                          ? 'text-emerald-400'
-                          : order.status === 'Cancelled'
-                          ? 'text-red-400'
-                          : 'text-amber-400'
-                      }`}
-                    >
-                      {order.status || 'Pending'}
-                    </div>
-
                   </div>
-
                 </div>
-
               ))
-
             )}
 
           </div>
-
         </div>
 
-{/*Products*/}
+        {/* PRODUCTS */}
+        <div className="glass-panel p-4 sm:p-6 rounded-2xl max-h-[55vh] flex flex-col">
 
-
-        <div className="glass-panel p-6 rounded-2xl h-[400px] overflow-hidden">
-
-          <div className="flex justify-between items-center mb-4 border-b border-brand-border/30 pb-3">
-
-            <h4 className="text-xs font-bold text-white uppercase">
+          <div className="flex justify-between items-center border-b border-brand-border/30 pb-2">
+            <h4 className="text-xs font-bold uppercase text-white">
               Products
             </h4>
 
@@ -367,52 +214,34 @@ export default function Dashboard({ onNavigate }) {
             >
               Edit
             </button>
-
           </div>
 
-          <div className="overflow-y-auto h-[320px] space-y-3 pr-2">
+          <div className="flex-1 overflow-y-auto mt-3 space-y-3">
 
             {safeProducts.length === 0 ? (
-
               <div className="text-xs text-brand-text/50">
-                No products found.
+                No products found
               </div>
-
             ) : (
-
-              safeProducts.map((product) => (
-
+              safeProducts.map((p) => (
                 <div
-                  key={product.id || product._id}
+                  key={p.id || p._id}
                   className="p-3 rounded-xl bg-brand-dark/20 border border-brand-border/30"
                 >
-
                   <div className="text-xs text-white font-bold uppercase">
-                    {product.name}
+                    {p.name}
                   </div>
-
-                  <div className="text-[10px] text-brand-text/50 mt-1">
-                    Category: {product.category}
+                  <div className="text-[10px] text-brand-text/50">
+                    {p.category}
                   </div>
-
-                  <div className="text-sm text-brand-primary mt-2 font-bold">
-                    ${Number(product.basePrice || 0).toFixed(2)}
-                  </div>
-
                 </div>
-
               ))
-
             )}
 
           </div>
-
         </div>
 
       </div>
-
     </div>
-
   );
-
 }

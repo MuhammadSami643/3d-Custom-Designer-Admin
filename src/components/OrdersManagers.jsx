@@ -8,12 +8,13 @@ export default function OrdersManager({ orders, onUpdateStatus }) {
   const [adminNotes, setAdminNotes] = useState('');
   const [saving, setSaving] = useState(false);
 
-  // Accordion controls
+  {/*  Accordion controls*/}
+  
   const [showContact, setShowContact] = useState(true);
   const [showRoster, setShowRoster] = useState(true);
   const [showDesign, setShowDesign] = useState(true);
 
-  // Search logic
+  {/* Search logic*/} 
   const filteredOrders = orders.filter((o) => {
     const term = searchTerm.toLowerCase();
     return (
@@ -36,7 +37,7 @@ export default function OrdersManager({ orders, onUpdateStatus }) {
     setSaving(true);
     try {
       await onUpdateStatus(selectedOrder._id, { status: statusVal, adminNotes });
-      // Update selected reference
+      {/*Update selected reference */} 
       setSelectedOrder({
         ...selectedOrder,
         status: statusVal,
@@ -53,7 +54,7 @@ export default function OrdersManager({ orders, onUpdateStatus }) {
     }
   };
 
-  // Pricing calculations for current selected order
+{/* Pricing calculations for current selected order */} 
   const getOrderTotal = (order) => {
     if (!order) return 0;
     const rosterQty = order.roster ? order.roster.reduce((sum, item) => sum + (parseInt(item.quantity) || 0), 0) : 0;
@@ -67,10 +68,10 @@ export default function OrdersManager({ orders, onUpdateStatus }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-140px)] animate-fade-in select-none">
       
-      //Left Columns - Orders List Panel
+      {/* Left Columns - Orders List Panel*/}
 
       <div className="lg:col-span-1 glass-panel rounded-2xl flex flex-col overflow-hidden">
-       //Search
+       {/* Search*/}
         <div className="p-4 border-b border-brand-border/40 space-y-3">
           <h3 className="text-sm font-extrabold uppercase tracking-wider text-[#F3F4F6]">Quotes Database</h3>
           <div className="relative">
@@ -85,7 +86,7 @@ export default function OrdersManager({ orders, onUpdateStatus }) {
           </div>
         </div>
 
-        //Scrollable list 
+       {/*Scrollable list */} 
         <div className="flex-grow overflow-y-auto scrollbar-thin divide-y divide-brand-border/30 p-2 space-y-1.5">
           {filteredOrders.length === 0 ? (
             <div className="text-center py-10 text-xs italic text-brand-text/45">
@@ -140,7 +141,7 @@ export default function OrdersManager({ orders, onUpdateStatus }) {
         </div>
       </div>
 
-    //Right Columns - Inspect drawer 
+   {/*Right Columns - Inspect drawer */} 
       <div className="lg:col-span-2 flex flex-col gap-4 overflow-hidden">
         {selectedOrder ? (
           <div className="flex-grow flex flex-col overflow-hidden bg-brand-card/30 border border-brand-border/60 rounded-2xl">
@@ -159,7 +160,7 @@ export default function OrdersManager({ orders, onUpdateStatus }) {
               </span>
             </div>
 
-          //Scrollable details
+        {/* Scrollable details*/}
             <div className="flex-grow overflow-y-auto scrollbar-thin p-6 space-y-4">
               
               <div className="glass-panel rounded-xl overflow-hidden">
@@ -195,7 +196,7 @@ export default function OrdersManager({ orders, onUpdateStatus }) {
                 )}
               </div>
 
-              // Accordion 2: Roster spreadsheet table 
+           {/* Accordion 2: Roster spreadsheet table */} 
               <div className="glass-panel rounded-xl overflow-hidden">
                 <button
                   onClick={() => setShowRoster(!showRoster)}
@@ -235,7 +236,7 @@ export default function OrdersManager({ orders, onUpdateStatus }) {
                 )}
               </div>
 
-    //Accordion 3: Uniform specifications 
+    {/* Accordion 3: Uniform specifications */}
               <div className="glass-panel rounded-xl overflow-hidden">
                 <button
                   onClick={() => setShowDesign(!showDesign)}
@@ -249,7 +250,7 @@ export default function OrdersManager({ orders, onUpdateStatus }) {
                 </button>
                 {showDesign && (
                   <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
-    // Zones & Colors 
+    {/*Zones & Colors  */}
                     <div className="space-y-3">
                       <h4 className="font-bold text-[#e2e8f0] uppercase tracking-wider text-[10px] border-b border-brand-border/40 pb-1 flex items-center gap-1.5">
                         <Palette className="w-3.5 h-3.5 text-brand-primary" />

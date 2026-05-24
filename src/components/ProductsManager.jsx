@@ -33,7 +33,7 @@ export default function ProductsManager({ products, onUpdatePrice }) {
 
   return (
     <div className="space-y-8 animate-fade-in select-none">
-  //Title
+  {/*Title */}
       <div>
         <h2 className="text-xl font-bold tracking-wider text-white uppercase font-sans">Garment Catalog modifier</h2>
         <p className="text-xs text-brand-text/70 mt-1">
@@ -41,12 +41,12 @@ export default function ProductsManager({ products, onUpdatePrice }) {
         </p>
       </div>
 
-  // Grid 
+  {/*  Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {products.map((p) => (
           <div key={p.id} className="glass-panel p-6 rounded-2xl flex flex-col justify-between hover:border-brand-primary/50 transition-all duration-300">
             <div className="space-y-4">
-        //Product header 
+        {/* Product header */}
               <div className="flex justify-between items-start gap-4">
                 <div className="space-y-1">
                   <h3 className="font-extrabold text-white text-md uppercase tracking-wide">
@@ -64,7 +64,7 @@ export default function ProductsManager({ products, onUpdatePrice }) {
 
               {/* Design specifications */}
               <div className="grid grid-cols-1 gap-3.5 bg-brand-dark/25 p-4 rounded-xl border border-brand-border/40 text-xs">
-      //3D zones 
+      {/* 3D zones*/} 
                 <div className="space-y-1.5">
                   <span className="text-[9px] uppercase tracking-wider text-brand-text/40 font-bold flex items-center gap-1.5">
                     <Layers className="w-3.5 h-3.5 text-brand-primary" />
@@ -79,7 +79,7 @@ export default function ProductsManager({ products, onUpdatePrice }) {
                   </div>
                 </div>
 
-      //  Default colors 
+      {/* Default colors */}  
                 <div className="space-y-1.5 pt-2.5 border-t border-brand-border/30">
                   <span className="text-[9px] uppercase tracking-wider text-brand-text/40 font-bold flex items-center gap-1.5">
                     <Palette className="w-3.5 h-3.5 text-brand-primary" />
@@ -98,7 +98,7 @@ export default function ProductsManager({ products, onUpdatePrice }) {
               </div>
             </div>
 
-  //Bottom edit trigger 
+  {/* Bottom edit trigger*/} 
             <div className="mt-6 pt-4 border-t border-brand-border/40 flex justify-end">
               <button
                 onClick={() => handleStartEdit(p)}
@@ -112,7 +112,7 @@ export default function ProductsManager({ products, onUpdatePrice }) {
         ))}
       </div>
 
-    // Edit Pricing Modal 
+    {/*Edit Pricing Modal  */} 
       {editingProduct && (
         <div className="fixed inset-0 bg-brand-dark/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <form onSubmit={handlePriceSubmit} className="glass-panel w-full max-w-sm p-6 rounded-xl space-y-4 shadow-2xl">
